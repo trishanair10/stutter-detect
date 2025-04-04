@@ -1,207 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stutter Detection and Classification</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            width: 80%;
-            max-width: 800px; /* added max-width for better responsiveness */
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        h1, h2 {
-            color: #333;
-        }
-
-        p {
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .upload-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-area.active {
-            border-color: #007bff;
-        }
-
-        #file-name {
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        #upload-button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #upload-button:hover {
-            background-color: #0056b3;
-        }
-
-        #result {
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        #result h2 {
-            margin-bottom: 10px;
-        }
-
-        #result p {
-            margin-bottom: 5px;
-        }
-
-        #result .stutter-detected {
-            color: red;
-        }
-
-        #result .stutter-not-detected {
-            color: green;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fluency in AI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #cce7ff, #e6f2ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #004080;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 2rem;
+    }
+    .upload-section {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    input[type="file"] {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+    .result {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #e6f7ff;
+      border-left: 5px solid #3399ff;
+      border-radius: 0.5rem;
+    }
+    .remedies {
+      margin-top: 3rem;
+      max-width: 800px;
+      text-align: left;
+      background: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 1rem;
+    }
+    .remedies h3 {
+      color: #004080;
+    }
+    .remedies ul {
+      padding-left: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Stutter Detection and Classification</h1>
-        <p>Upload an audio file to detect and classify stuttering.</p>
+  <h1>Fluency in AI</h1>
+  <p>Empowering speech through intelligent detection.</p>
 
-        <div class="upload-area" id="upload-area">
-            <input type="file" id="file-input" accept=".wav,.mp3">
-            <p>Drag & Drop your audio file here or click to select</p>
-            <p id="file-name"></p>
-        </div>
+  <div class="upload-section">
+    <h2>Upload Your Speech</h2>
+    <input type="file" id="audioFile" accept="audio/*" />
+    <br />
+    <button onclick="uploadAudio()">Analyze</button>
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
 
-        <button id="upload-button">Upload and Analyze</button>
+  <div class="remedies">
+    <h3>Recommended Remedies & Exercises</h3>
+    <ul>
+      <li>Practice diaphragmatic breathing</li>
+      <li>Use delayed auditory feedback apps</li>
+      <li>Read aloud in front of a mirror daily</li>
+      <li>Listen to slow, fluent speakers</li>
+      <li>Consult a certified speech therapist</li>
+    </ul>
+  </div>
 
-        <div id="result" style="display: none;">
-            <h2>Analysis Result</h2>
-            <p id="stutter-status"></p>
-            <p id="stutter-type"></p>
-            <p id="confidence"></p>
-        </div>
-    </div>
+  <script>
+    async function uploadAudio() {
+      const fileInput = document.getElementById('audioFile');
+      const file = fileInput.files[0];
+      const resultDiv = document.getElementById('result');
 
-    <script>
-        const uploadArea = document.getElementById('upload-area');
-        const fileInput = document.getElementById('file-input');
-        const fileNameDisplay = document.getElementById('file-name');
-        const uploadButton = document.getElementById('upload-button');
-        const resultDiv = document.getElementById('result');
-        const stutterStatus = document.getElementById('stutter-status');
-        const stutterType = document.getElementById('stutter-type');
-        const confidence = document.getElementById('confidence');
+      if (!file) {
+        alert("Please select an audio file first.");
+        return;
+      }
 
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = "⏳ Processing audio...";
+
+        const response = await fetch("https://your-backend-api-url/predict", {
+          method: "POST",
+          body: formData
         });
 
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('active');
-        });
+        const data = await response.json();
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('active');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('active');
-            fileInput.files = e.dataTransfer.files;
-            displayFileName();
-        });
-
-        fileInput.addEventListener('change', displayFileName);
-
-        function displayFileName() {
-            if (fileInput.files.length > 0) {
-                fileNameDisplay.textContent = fileInput.files[0].name;
-            } else {
-                fileNameDisplay.textContent = '';
-            }
+        if (data.classification === "Non-Stuttered") {
+          resultDiv.innerHTML = `<strong>Speech Type:</strong> ${data.classification}`;
+        } else {
+          resultDiv.innerHTML = `
+            <strong>Speech Type:</strong> ${data.classification}<br>
+            <strong>Stuttering Type:</strong> ${data.stutter_type}`;
         }
-
-        uploadButton.addEventListener('click', () => {
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const formData = new FormData();
-                formData.append('audio', file);
-
-                // Simulate backend response (replace with actual API call)
-                simulateBackendResponse(formData);
-
-                // Real API call example (replace with your actual API endpoint)
-                /*
-                fetch('/api/analyze', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    displayResult(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred during analysis.');
-                });
-                */
-            } else {
-                alert('Please select a file.');
-            }
-        });
-
-        function simulateBackendResponse(formData) {
-            // Simulate processing delay
-            setTimeout(() => {
-                // Simulate backend analysis result
-                const simulatedResult = {
-                    stutterDetected: Math.random() > 0.5,
-                    stutterType: Math.random() > 0.5 ? 'Repetition' : 'Prolongation',
-                    confidence: (Math.random() * 100).toFixed(2) + '%'
-                };
-
-                displayResult(simulatedResult);
-            }, 1000); // 1 second delay
-        }
-
-        function displayResult(data) {
-            stutterStatus.textContent = data.stutterDetected ? 'Stutter Detected' : 'Stutter Not Detected';
-            stutterType.textContent = 'Stutter Type: ' + data.stutterType;
-            confidence.textContent = 'Confidence: ' + data.confidence;
-
-            stutterStatus.className = data.stutterDetected ? 'stutter-detected' : 'stutter-not-detected';
-
-            resultDiv.style.display = 'block';
-        }
-    </script>
+      } catch (error) {
+        console.error("Error during upload:", error);
+        resultDiv.innerHTML = "❌ Error analyzing audio. Please try again later.";
+      }
+    }
+  </script>
 </body>
 </html>
